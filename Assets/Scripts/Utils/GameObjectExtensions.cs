@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Assets.Scripts
+namespace Scripts.Model
 {
     public static class GameObjectExtensions
     {

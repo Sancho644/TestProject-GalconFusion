@@ -1,20 +1,24 @@
 ﻿using UnityEngine;
 
-namespace Assets.Scripts
+namespace Scripts.Model
 {
     public class SelectionManager : MonoBehaviour
     {
-        [SerializeField] private Camera _camera;
-        [SerializeField] private Material _selectionMaterial;
         [SerializeField] private float _maxDistance = 20f;
         [SerializeField] private LayerMask _playerPlanetLayer;
         [SerializeField] private LayerMask _neutralPlanetLayer;
 
+        private Camera _camera;
         private Material _defaultMaterial;
         private Renderer _selectionRenderer;
         private Transform _selection;
         private Transform _firstSelection = default;
         private bool _isSelect = false;
+
+        private void Start()
+        {
+            _camera = Camera.main;
+        }
 
         private void Update()
         {
@@ -49,7 +53,6 @@ namespace Assets.Scripts
 
             if (Physics.Raycast(ray, out hit, _maxDistance, _neutralPlanetLayer) && _isSelect)
             {
-                Debug.Log("neutral");
                 SelectNeutral(hit, _selection);
             }
             else if (_selectionRenderer != null)
@@ -57,7 +60,6 @@ namespace Assets.Scripts
                 _firstSelection = default;
                 _isSelect = false;
                 _selectionRenderer.material = _defaultMaterial;
-                Debug.Log("deselect");
             }
         }
 
@@ -76,9 +78,8 @@ namespace Assets.Scripts
             if (_selectionRenderer != null)
             {
                 _firstSelection = _selection;
-                _selectionRenderer.material = _selectionMaterial;
+                _selectionRenderer.material = DefsFacade.I.Settings.SelectionMaterial;
                 _isSelect = true;
-                Debug.Log("select");
                 return;
             }
         }
@@ -86,12 +87,15 @@ namespace Assets.Scripts
         private void SelectNeutral(RaycastHit hit, Transform select)
         {
             var selection = hit.transform;
-            var selectionController = selection.GetComponent<PlanetController>();
 
-            if (selectionController != null)
+            if (selection == select) return;
+
+            if (selection.TryGetComponent(out PlanetController selectionController))
             {
-                var playerPlanet = select.GetComponent<PlanetController>();
-                playerPlanet.SpawnShips(selectionController.AgentTarget);
+                if(select.TryGetComponent(out PlanetController playerPlanet))
+                {
+                    playerPlanet.SpawnShips(selectionController.AgentTarget, selectionController.Index);
+                }
             }
         }
     }

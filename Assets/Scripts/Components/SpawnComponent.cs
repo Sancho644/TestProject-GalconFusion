@@ -1,39 +1,42 @@
-﻿using Scripts;
+﻿using Scripts.Model;
+using Scripts.Utils;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.Scripts
+namespace Scripts.Components
 {
     public class SpawnComponent : MonoBehaviour
     {
         [SerializeField] private GameObject _prefab;
         [SerializeField] private Transform _spawnPosition;
         [SerializeField] private PlanetController _planet;
-        [SerializeField] private int _count = 0;
+        
+        private int _defaultShipCount;
 
         public static List<GameObject> Ships = new List<GameObject>();
 
-        public void Spawn()
+        public void Spawn(int count)
         {
-            _count = _planet.ShipCount / 2;
-
             if (_prefab != null)
             {
-                for (int i = 0; i < _count; i++)
+                _defaultShipCount = Ships.Count;
+
+                for (int i = 0; i < count; i++)
                 {
-                    Ships.Add(Instantiate(_prefab, _spawnPosition));
-                    Ships[i].gameObject.SetActive(true);
+                    Ships.Add(SpawnUtils.Spawn(_prefab, _spawnPosition.position));
+                    Ships[i].SetActive(true);
                 }
             }
         }
 
-        public void SetDestination(Transform target)
+        public void SetDestination(Transform target, int index)
         {
-            for (int i = 0; i < Ships.Count; i++)
+            for (int i = _defaultShipCount; i < Ships.Count; i++)
             {
                 if (Ships[i].TryGetComponent(out ShipController controller))
                 {
-                    controller.SetTarget(target);
+                    Ships[i].SetActive(true);
+                    controller.SetTarget(target, index);
                 }
             }
         }
