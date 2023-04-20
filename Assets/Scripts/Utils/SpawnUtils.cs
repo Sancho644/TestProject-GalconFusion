@@ -4,7 +4,7 @@ namespace Scripts.Utils
 {
     public class SpawnUtils
     {
-        private const string ContainerName = "@@@@@SPAWNER@@@@@";
+        private const string ContainerName = "####SPAWNER####";
 
         public static GameObject Spawn(GameObject prefab, Vector3 position, string containerName = ContainerName)
         {
